@@ -1,17 +1,53 @@
-import express from 'express';
-import routes from './routes/index';
+const redis = require('redis');
+const { promisify } = require('util');
 
-const app = express();
-const PORT = process.env.PORT || 5000;
+class RedisClient {
+    constructor() {
+        this.client = redis.createClient();
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+        // Handle Redis connection errors
+        this.client.on('error', (err) => {
+            console.error('Redis client error:', err);
+        });
 
-// Register routes
-routes(app);
+        // Promisify Redis client methods for async/await usage
+        this.getAsync = promisify(this.client.get).bind(this.client);
+        this.setAsync = promisify(this.client.set).bind(this.client);
+        this.delAsync = promisify(this.client.del).bind(this.client);
+    }
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
-});
+    isAlive() {
+        // Check if the Redis client is connected and ready
+        return this.client.connected;
+    }
 
-export default app;
+    async get(key) {
+        try {
+            const value = await this.getAsync(key);
+            return value;
+        } catch (err) {
+            console.error(`Error getting key ${key} from Redis:`, err);
+            return null;
+        }
+    }
+
+    async set(key, value, duration) {
+        try {
+            await this.setAsync(key, value, 'EX', duration);
+        } catch (err) {
+            console.error(`Error setting key ${key} in Redis:`, err);
+        }
+    }
+
+    async del(key) {
+        try {
+            await this.delAsync(key);
+        } catch (err) {
+            console.error(`Error deleting key ${key} from Redis:`, err);
+        }
+    }
+}
+
+// Create and export an instance of RedisClient
+const redisClient = new RedisClient();
+module.exports = redisClient;
