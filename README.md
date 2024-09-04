@@ -1,5 +1,16 @@
 This project is a summary of this back-end trimester: authentication, NodeJS, MongoDB, Redis, pagination and background processing.
 
+0x04. Files manager
+Back-end
+JavaScript
+ES6
+NoSQL
+MongoDB
+Redis
+NodeJS
+ExpressJS
+Kue
+
 The objective is to build a simple platform to upload and view files:
 
 User authentication via a token
