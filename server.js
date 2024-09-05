@@ -1,18 +1,14 @@
 import express from 'express';
-import routes from './routes/index.js';
+import router from './routes/index.js';
 
 const app = express();
-const port = process.env.PORT || 5000;
+const port = parseInt(process.env.PORT, 10) || 5000;
 
-// Middleware
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-
-// Routes
-app.use('/', routes);
+app.use('/', router);
 
 app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+  console.log(`server is running on port ${port}`);
 });
 
 export default app;
